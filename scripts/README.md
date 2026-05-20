@@ -38,3 +38,9 @@ Train the focused mudra classifier:
 ```
 
 By default this trains on the app-supported mudras: `Alapadmam`, `Anjali`, `Ardhapathaka`, `Mayura`, `Mrigasirsha`, `Mushti`, `Padmakosha`, `Pathaka`, `Shukatundam`, `Sikharam`, `Suchi`, and `Tripathaka`. Add `--labels` to choose different classes.
+
+Train the deployment-safe image classifier:
+
+```powershell
+.\.venv\Scripts\python.exe scripts\train_image_mudra_classifier.py
+```

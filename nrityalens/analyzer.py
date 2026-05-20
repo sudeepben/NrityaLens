@@ -9,19 +9,29 @@ import numpy as np
 
 try:
     import cv2
-    import joblib
-    import mediapipe as mp
-    import pandas as pd
 except ImportError:
     cv2 = None
+
+try:
+    import joblib
+except ImportError:
     joblib = None
+
+try:
+    import mediapipe as mp
+except ImportError:
     mp = None
+
+try:
+    import pandas as pd
+except ImportError:
     pd = None
 
 
 ROOT = Path(__file__).resolve().parents[1]
 MODEL_PATH = ROOT / "models" / "pose_classifier.joblib"
 MUDRA_MODEL_PATH = ROOT / "models" / "mudra_classifier.joblib"
+IMAGE_MUDRA_MODEL_PATH = ROOT / "models" / "mudra_image_classifier.joblib"
 LABEL_DISPLAY = {
     "alapadmam": "Alapadmam",
     "anjali": "Anjali",
@@ -102,6 +112,10 @@ def dependencies_available() -> bool:
     return cv2 is not None and mp is not None
 
 
+def image_analysis_available() -> bool:
+    return cv2 is not None and joblib is not None and IMAGE_MUDRA_MODEL_PATH.exists()
+
+
 def model_available() -> bool:
     return joblib is not None and MODEL_PATH.exists()
 
@@ -110,9 +124,29 @@ def mudra_model_available() -> bool:
     return joblib is not None and MUDRA_MODEL_PATH.exists()
 
 
+def image_mudra_model_available() -> bool:
+    return joblib is not None and IMAGE_MUDRA_MODEL_PATH.exists()
+
+
 def analyze_image(image_rgb: np.ndarray) -> AnalysisResult:
     if not dependencies_available():
-        raise RuntimeError("MediaPipe and OpenCV are required for image analysis.")
+        image_prediction = _classify_mudra_from_image(image_rgb)
+        if image_prediction:
+            label, confidence = image_prediction
+            return AnalysisResult(
+                dance_form="Bharatanatyam",
+                detected_label=label,
+                confidence=confidence,
+                posture_score=0.0,
+                symmetry_score=0.0,
+                pose_match_score=0.0,
+                feedback=[
+                    "Image-based mudra detection is active. Install MediaPipe locally for landmark overlays and posture scoring."
+                ],
+                annotated_image=image_rgb,
+                metrics={},
+            )
+        raise RuntimeError("OpenCV and a trained image classifier are required for deployment analysis.")
 
     pose_model = mp.solutions.pose.Pose(static_image_mode=True, model_complexity=1)
     hands_model = mp.solutions.hands.Hands(static_image_mode=True, max_num_hands=2)
@@ -283,6 +317,34 @@ def _classify(metrics: dict[str, float]) -> tuple[str, float]:
     return _classify_baseline(metrics)
 
 
+def _classify_mudra_from_image(image_rgb: np.ndarray) -> tuple[str, float] | None:
+    model_bundle = _load_image_mudra_model()
+    if model_bundle is None or cv2 is None:
+        return None
+
+    image_size = int(model_bundle.get("image_size", 64))
+    features = image_feature_vector(image_rgb, image_size=image_size)
+    row = features.reshape(1, -1)
+    pipeline = model_bundle["pipeline"]
+    raw_label = pipeline.predict(row)[0]
+    label = LABEL_DISPLAY.get(str(raw_label), str(raw_label).replace("_", " ").title())
+
+    confidence = 0.0
+    if hasattr(pipeline, "predict_proba"):
+        confidence = float(np.max(pipeline.predict_proba(row)[0]))
+    return label, confidence
+
+
+def image_feature_vector(image_rgb: np.ndarray, image_size: int = 64) -> np.ndarray:
+    if cv2 is None:
+        raise RuntimeError("OpenCV is required for image feature extraction.")
+
+    resized = cv2.resize(image_rgb, (image_size, image_size), interpolation=cv2.INTER_AREA)
+    gray = cv2.cvtColor(resized, cv2.COLOR_RGB2GRAY)
+    equalized = cv2.equalizeHist(gray)
+    return (equalized.astype(np.float32) / 255.0).reshape(-1)
+
+
 def _classify_mudra_from_hands(hands_result: Any) -> tuple[str, float] | None:
     model_bundle = _load_mudra_model()
     if model_bundle is None or pd is None or not hands_result.multi_hand_landmarks:
@@ -394,6 +456,13 @@ def _load_mudra_model() -> dict[str, Any] | None:
     if not mudra_model_available():
         return None
     return joblib.load(MUDRA_MODEL_PATH)
+
+
+@lru_cache(maxsize=1)
+def _load_image_mudra_model() -> dict[str, Any] | None:
+    if not image_mudra_model_available():
+        return None
+    return joblib.load(IMAGE_MUDRA_MODEL_PATH)
 
 
 def _classify_baseline(metrics: dict[str, float]) -> tuple[str, float]:

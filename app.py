@@ -7,7 +7,14 @@ import pandas as pd
 import streamlit as st
 from PIL import Image
 
-from nrityalens.analyzer import analyze_image, dependencies_available, model_available, mudra_model_available
+from nrityalens.analyzer import (
+    analyze_image,
+    dependencies_available,
+    image_analysis_available,
+    image_mudra_model_available,
+    model_available,
+    mudra_model_available,
+)
 from nrityalens.knowledge import find_meaning, load_meanings
 from nrityalens.storage import init_db, recent_analyses, save_analysis
 
@@ -65,8 +72,10 @@ def main() -> None:
         st.header("MVP Scope")
         st.write("Dance form: Bharatanatyam")
         st.write("Input: still image")
-        if model_available() and mudra_model_available():
+        if model_available() and (mudra_model_available() or image_mudra_model_available()):
             st.write("Analysis: trained pose and mudra classifiers")
+        elif image_mudra_model_available() and not dependencies_available():
+            st.write("Analysis: deployment image classifier")
         elif mudra_model_available():
             st.write("Analysis: trained mudra classifier plus pose baseline")
         elif model_available():
@@ -89,9 +98,9 @@ def main() -> None:
     uploaded = st.file_uploader("Upload a Bharatanatyam pose or mudra image", type=["jpg", "jpeg", "png"])
     st.caption("For best mudra detection, use a clear hand image. For posture scoring, use a full-body dance image.")
 
-    if not dependencies_available():
+    if not dependencies_available() and not image_analysis_available():
         st.warning(
-            "MediaPipe or OpenCV is not installed in this environment. Install requirements.txt to enable image analysis."
+            "OpenCV or model files are missing. Install requirements.txt and ensure model artifacts are present."
         )
 
     if uploaded is not None:
@@ -103,7 +112,7 @@ def main() -> None:
             st.subheader("Uploaded Image")
             st.image(image, use_container_width=True)
 
-        if dependencies_available():
+        if dependencies_available() or image_analysis_available():
             with st.spinner("Analyzing pose landmarks..."):
                 result = analyze_image(image_array)
 
@@ -128,12 +137,14 @@ def main() -> None:
                     st.image(result.annotated_image, use_container_width=True)
 
             st.subheader("Analysis")
-            if model_available() or mudra_model_available():
+            if model_available() or mudra_model_available() or image_mudra_model_available():
                 active_models = []
                 if model_available():
                     active_models.append("pose")
                 if mudra_model_available():
-                    active_models.append("mudra")
+                    active_models.append("landmark mudra")
+                if image_mudra_model_available():
+                    active_models.append("image mudra")
                 st.success(f"Using trained {' and '.join(active_models)} classifier.")
             else:
                 st.info("Using rule-based baseline. Train a model to improve detection.")
