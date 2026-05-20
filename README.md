@@ -88,3 +88,5 @@ The repository is designed to commit source code, scripts, curated meanings, and
 - The local `.venv`
 
 See `DATASETS.md` and `MODEL_CARD.md` for dataset attribution and model reproduction notes.
+
+See `DEPLOYMENT.md` for Streamlit Community Cloud deployment settings.

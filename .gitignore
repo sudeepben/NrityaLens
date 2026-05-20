@@ -9,6 +9,7 @@ data/features.csv
 data/mudra_features.csv
 data/external/
 models/*.joblib
+!models/mudra_classifier.joblib
 
 # Local OS/editor files
 .DS_Store

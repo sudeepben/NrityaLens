@@ -4,7 +4,7 @@
 
 `models/mudra_classifier.joblib`
 
-This model is generated locally and is not committed to GitHub.
+This model is committed so the deployed app can run the trained mudra classifier without downloading the external dataset at startup.
 
 ## Task
 
