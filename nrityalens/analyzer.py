@@ -9,22 +9,22 @@ import numpy as np
 
 try:
     import cv2
-except ImportError:
+except Exception:
     cv2 = None
 
 try:
     import joblib
-except ImportError:
+except Exception:
     joblib = None
 
 try:
     import mediapipe as mp
-except ImportError:
+except Exception:
     mp = None
 
 try:
     import pandas as pd
-except ImportError:
+except Exception:
     pd = None
 
 
