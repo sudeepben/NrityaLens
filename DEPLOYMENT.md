@@ -32,11 +32,10 @@ This lets the deployed app run the 12-mudra classifier immediately. The raw exte
 
 ## System Packages
 
-`packages.txt` installs Linux packages commonly needed by OpenCV/MediaPipe on Streamlit Cloud:
+`packages.txt` installs the Linux package commonly needed by OpenCV/MediaPipe on Streamlit Cloud:
 
 ```text
 libgl1
-libglib2.0-0
 ```
 
 ## After Deployment
