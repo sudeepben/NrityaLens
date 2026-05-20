@@ -2,13 +2,15 @@
 
 AI-powered Indian classical dance movement and meaning analyzer.
 
+Live app: https://nrityalens-3dmmccjdxcgvvrwc2henez.streamlit.app/
+
 This MVP focuses on Bharatanatyam image analysis:
 
 - Upload a dance image
-- Extract body and hand landmarks with MediaPipe
-- Estimate likely pose or mudra from curated rules
-- Score posture, symmetry, and pose match
+- Detect 12 Bharatanatyam mudras in the deployed app
 - Explain cultural meaning from a local knowledge base
+- Download an analysis report
+- Run optional MediaPipe landmark analysis locally
 - Save analysis history locally
 
 ## Run Locally
@@ -21,7 +23,11 @@ pip install -r requirements.txt
 streamlit run app.py
 ```
 
-If MediaPipe is not installed, the app still opens and explains what dependency is missing, but image analysis requires the full requirements.
+The deployed app uses a lightweight image classifier. For local MediaPipe landmark training and posture scoring utilities, install:
+
+```powershell
+pip install -r requirements-training.txt
+```
 
 ## Project Layout
 
@@ -29,13 +35,16 @@ If MediaPipe is not installed, the app still opens and explains what dependency 
 nrityalens/
   app.py
   requirements.txt
+  requirements-training.txt
   models/
-    pose_classifier.joblib
+    mudra_image_classifier.joblib
+    mudra_classifier.joblib
   scripts/
     extract_features.py
     train_classifier.py
     extract_mudra_features.py
     train_mudra_classifier.py
+    train_image_mudra_classifier.py
   data/
     mudra_meanings.json
     features.csv
@@ -53,7 +62,7 @@ nrityalens/
 
 ## MVP Scope
 
-The app currently supports a trained hand-landmark mudra classifier for 12 Bharatanatyam mudras, plus a rule-based baseline for body posture scoring. Full-body pose classification is scaffolded but still needs a labeled full-body dataset.
+The deployed app supports a trained image-based classifier for 12 Bharatanatyam mudras. Local runs can also use a MediaPipe hand-landmark mudra classifier when `requirements-training.txt` is installed. Full-body pose classification is scaffolded but still needs a labeled full-body dataset.
 
 ## Training Workflow
 
@@ -73,7 +82,7 @@ For the GitHub Bharatanatyam mudra dataset:
 .\.venv\Scripts\python.exe scripts\train_mudra_classifier.py
 ```
 
-The trained mudra classifier is saved to `models/mudra_classifier.joblib`. Raw external datasets should stay local under `data/external/` and should not be committed to GitHub.
+The trained image classifier is saved to `models/mudra_image_classifier.joblib`. The MediaPipe landmark classifier is saved to `models/mudra_classifier.joblib`. Raw external datasets should stay local under `data/external/` and should not be committed to GitHub.
 
 The default mudra training set includes: `Alapadmam`, `Anjali`, `Ardhapathaka`, `Mayura`, `Mrigasirsha`, `Mushti`, `Padmakosha`, `Pathaka`, `Shukatundam`, `Sikharam`, `Suchi`, and `Tripathaka`.
 
@@ -83,7 +92,6 @@ The repository is designed to commit source code, scripts, curated meanings, and
 
 - External datasets under `data/external/`
 - Generated feature CSV files
-- Trained `.joblib` model files
 - Local SQLite history
 - The local `.venv`
 

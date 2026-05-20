@@ -40,15 +40,21 @@ def build_report(file_name: str, result, meaning) -> str:
     meaning_text = meaning.meaning if meaning else "No curated meaning available yet."
     keywords = ", ".join(meaning.keywords) if meaning else "Not available"
     feedback = "\n".join(f"- {item}" for item in result.feedback)
+    posture_lines = ""
+    if result.metrics:
+        posture_lines = f"""Posture score: {result.posture_score:.0f}/100
+Symmetry score: {result.symmetry_score:.0f}/100
+Pose match score: {result.pose_match_score:.0f}/100
+"""
+    else:
+        posture_lines = "Posture score: Not available in mudra-only mode\n"
     return f"""NrityaLens Analysis Report
 
 Uploaded file: {file_name}
 Detected dance form: {result.dance_form}
 Detected pose/mudra: {result.detected_label or "Unknown"}
 Confidence: {result.confidence * 100:.0f}%
-Posture score: {result.posture_score:.0f}/100
-Symmetry score: {result.symmetry_score:.0f}/100
-Pose match score: {result.pose_match_score:.0f}/100
+{posture_lines}
 
 Cultural meaning:
 {meaning_text}
@@ -149,21 +155,24 @@ def main() -> None:
             else:
                 st.info("Using rule-based baseline. Train a model to improve detection.")
 
-            c1, c2, c3, c4 = st.columns(4)
+            c1, c2, c3 = st.columns(3)
             with c1:
                 metric_card("Detected Dance Form", result.dance_form)
             with c2:
                 metric_card("Detected Pose/Mudra", result.detected_label or "Unknown")
             with c3:
                 metric_card("Confidence", f"{result.confidence * 100:.0f}%")
-            with c4:
-                metric_card("Posture Score", f"{result.posture_score:.0f}/100")
 
-            c5, c6 = st.columns(2)
-            with c5:
-                metric_card("Symmetry Score", f"{result.symmetry_score:.0f}/100")
-            with c6:
-                metric_card("Pose Match Score", f"{result.pose_match_score:.0f}/100")
+            if result.metrics:
+                c4, c5, c6 = st.columns(3)
+                with c4:
+                    metric_card("Posture Score", f"{result.posture_score:.0f}/100")
+                with c5:
+                    metric_card("Symmetry Score", f"{result.symmetry_score:.0f}/100")
+                with c6:
+                    metric_card("Pose Match Score", f"{result.pose_match_score:.0f}/100")
+            else:
+                st.info("Mudra-only mode is active for this analysis. Posture and symmetry scores require MediaPipe landmarks in a local run.")
 
             st.subheader("Cultural Meaning")
             if meaning:
