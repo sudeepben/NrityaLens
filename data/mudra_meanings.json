@@ -1,0 +1,114 @@
+[
+  {
+    "dance_form": "Bharatanatyam",
+    "label": "Anjali",
+    "type": "mudra",
+    "keywords": ["salutation", "prayer", "respect"],
+    "meaning": "Anjali joins both palms to express salutation, devotion, greeting, or reverence. It is commonly used at the beginning and end of performance sequences.",
+    "feedback_focus": ["palm contact", "centered hands", "upright torso"]
+  },
+  {
+    "dance_form": "Bharatanatyam",
+    "label": "Pataka",
+    "type": "mudra",
+    "keywords": ["flag", "cloud", "forest", "river"],
+    "meaning": "Pataka is the flat flag-like hand. It can suggest clouds, forests, denial, wind, a river, or the opening of a narrative phrase.",
+    "feedback_focus": ["straight fingers", "open palm", "relaxed wrist"]
+  },
+  {
+    "dance_form": "Bharatanatyam",
+    "label": "Tripataka",
+    "type": "mudra",
+    "keywords": ["crown", "tree", "arrow", "flame"],
+    "meaning": "Tripataka is a three-part flag hand gesture. Depending on storytelling context, it can represent a crown, tree, arrow, thunderbolt, or flame.",
+    "feedback_focus": ["wrist alignment", "finger extension", "elbow height"]
+  },
+  {
+    "dance_form": "Bharatanatyam",
+    "label": "Ardhapathaka",
+    "type": "mudra",
+    "keywords": ["leaf", "board", "bank", "knife"],
+    "meaning": "Ardhapathaka, or half-flag, is often used for leaves, river banks, boards, knives, or paired visual motifs in expressive storytelling.",
+    "feedback_focus": ["ring finger fold", "finger clarity", "palm orientation"]
+  },
+  {
+    "dance_form": "Bharatanatyam",
+    "label": "Mayura",
+    "type": "mudra",
+    "keywords": ["peacock", "beauty", "tilaka", "bird"],
+    "meaning": "Mayura means peacock. The gesture can indicate a peacock, graceful beauty, a bird form, or the act of applying a tilaka mark.",
+    "feedback_focus": ["thumb-ring contact", "finger extension", "wrist softness"]
+  },
+  {
+    "dance_form": "Bharatanatyam",
+    "label": "Shukatundam",
+    "type": "mudra",
+    "keywords": ["parrot beak", "small spear", "mystery"],
+    "meaning": "Shukatundam resembles a parrot's beak and can be used for delicate or pointed imagery in narrative passages.",
+    "feedback_focus": ["curved finger shape", "thumb position", "clear silhouette"]
+  },
+  {
+    "dance_form": "Bharatanatyam",
+    "label": "Mushti",
+    "type": "mudra",
+    "keywords": ["fist", "strength", "firmness", "grasp"],
+    "meaning": "Mushti is the fist gesture. It can express strength, firmness, grasping, or moments of force and resolve.",
+    "feedback_focus": ["closed fingers", "thumb placement", "wrist stability"]
+  },
+  {
+    "dance_form": "Bharatanatyam",
+    "label": "Sikharam",
+    "type": "mudra",
+    "keywords": ["peak", "bow", "pillar", "resolve"],
+    "meaning": "Sikharam is a peak-like hand gesture often associated with firmness, a bow, a pillar, or held symbolic objects depending on context.",
+    "feedback_focus": ["thumb lift", "closed fingers", "vertical alignment"]
+  },
+  {
+    "dance_form": "Bharatanatyam",
+    "label": "Suchi",
+    "type": "mudra",
+    "keywords": ["one", "pointing", "sun", "needle"],
+    "meaning": "Suchi uses the index finger to point or indicate one. It can represent a needle, the sun, a city, or directed attention.",
+    "feedback_focus": ["index extension", "folded fingers", "wrist direction"]
+  },
+  {
+    "dance_form": "Bharatanatyam",
+    "label": "Padmakosha",
+    "type": "mudra",
+    "keywords": ["lotus bud", "fruit", "offering", "flower"],
+    "meaning": "Padmakosha forms a lotus-bud shape. It may represent flowers, fruit, an offering, a rounded vessel, or delicate natural imagery.",
+    "feedback_focus": ["cupped palm", "spread fingertips", "rounded shape"]
+  },
+  {
+    "dance_form": "Bharatanatyam",
+    "label": "Mrigasirsha",
+    "type": "mudra",
+    "keywords": ["deer head", "searching", "face", "gentleness"],
+    "meaning": "Mrigasirsha means deer head. It can suggest a deer, gentle searching, a face, or soft expressive movement.",
+    "feedback_focus": ["finger grouping", "thumb placement", "soft wrist"]
+  },
+  {
+    "dance_form": "Bharatanatyam",
+    "label": "Alapadmam",
+    "type": "mudra",
+    "keywords": ["full lotus", "beauty", "moon", "flower"],
+    "meaning": "Alapadmam resembles a fully opened lotus. It often conveys beauty, blossoming, the moon, a flower, or expansive grace.",
+    "feedback_focus": ["open fingers", "curved palm", "clear radial spread"]
+  },
+  {
+    "dance_form": "Bharatanatyam",
+    "label": "Nataraja Pose",
+    "type": "pose",
+    "keywords": ["shiva", "cosmic dance", "balance"],
+    "meaning": "The Nataraja pose evokes Shiva as Lord of Dance. It symbolizes rhythm, creation, dissolution, balance, and the cosmic cycle of movement.",
+    "feedback_focus": ["standing balance", "lifted chest", "arm arc", "knee control"]
+  },
+  {
+    "dance_form": "Bharatanatyam",
+    "label": "Araimandi",
+    "type": "stance",
+    "keywords": ["half-sitting", "foundation", "geometry"],
+    "meaning": "Araimandi is the foundational half-sitting posture of Bharatanatyam. It creates the geometric base for movement, rhythm, strength, and expressive clarity.",
+    "feedback_focus": ["knee bend", "spine lift", "hip openness", "shoulder level"]
+  }
+]

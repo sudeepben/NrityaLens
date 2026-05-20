@@ -1,0 +1,17 @@
+.venv/
+__pycache__/
+*.py[cod]
+*.sqlite3
+*.log
+
+# Generated training outputs
+data/features.csv
+data/mudra_features.csv
+data/external/
+models/*.joblib
+
+# Local OS/editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
