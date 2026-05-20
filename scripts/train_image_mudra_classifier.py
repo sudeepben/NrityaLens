@@ -24,20 +24,7 @@ from nrityalens.analyzer import image_feature_vector
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".bmp"}
 DEFAULT_DATASET = ROOT / "data" / "external" / "Bharatanatyam-Mudra-Dataset"
 DEFAULT_MODEL = ROOT / "models" / "mudra_image_classifier.joblib"
-DEFAULT_LABELS = [
-    "Alapadmam",
-    "Anjali",
-    "Ardhapathaka",
-    "Mayura",
-    "Mrigasirsha",
-    "Mushti",
-    "Padmakosha",
-    "Pathaka",
-    "Shukatundam",
-    "Sikharam",
-    "Suchi",
-    "Tripathaka",
-]
+DEFAULT_LABELS: list[str] = []
 
 
 def normalize_label(folder_name: str) -> str:
@@ -55,13 +42,21 @@ def iter_images(dataset_dir: Path, wanted_labels: set[str]):
                 yield label, image_path
 
 
+def read_image_rgb(image_path: Path):
+    raw = np.fromfile(str(image_path), dtype=np.uint8)
+    image_bgr = cv2.imdecode(raw, cv2.IMREAD_COLOR)
+    if image_bgr is None:
+        return None
+    return cv2.cvtColor(image_bgr, cv2.COLOR_BGR2RGB)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Train a deployment-safe image mudra classifier.")
     parser.add_argument("--dataset-dir", type=Path, default=DEFAULT_DATASET)
     parser.add_argument("--model-output", type=Path, default=DEFAULT_MODEL)
     parser.add_argument("--image-size", type=int, default=64)
     parser.add_argument("--limit-per-class", type=int, default=0)
-    parser.add_argument("--labels", nargs="*", default=DEFAULT_LABELS)
+    parser.add_argument("--labels", nargs="*", default=DEFAULT_LABELS, help="Labels to include. Default: all folders.")
     args = parser.parse_args()
 
     if not args.dataset_dir.exists():
@@ -77,12 +72,11 @@ def main() -> None:
         if args.limit_per_class and counts.get(label, 0) >= args.limit_per_class:
             continue
 
-        image_bgr = cv2.imread(str(image_path))
-        if image_bgr is None:
+        image_rgb = read_image_rgb(image_path)
+        if image_rgb is None:
             skipped += 1
             continue
 
-        image_rgb = cv2.cvtColor(image_bgr, cv2.COLOR_BGR2RGB)
         rows.append(image_feature_vector(image_rgb, image_size=args.image_size))
         labels.append(label)
         counts[label] = counts.get(label, 0) + 1
@@ -103,14 +97,13 @@ def main() -> None:
     pipeline = Pipeline(
         [
             ("scaler", StandardScaler()),
-            ("pca", PCA(n_components=160, random_state=42)),
+            ("pca", PCA(n_components=300, random_state=42)),
             (
                 "classifier",
                 LogisticRegression(
-                    max_iter=1500,
+                    max_iter=2500,
                     class_weight="balanced",
                     solver="lbfgs",
-                    multi_class="auto",
                 ),
             ),
         ]

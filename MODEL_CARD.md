@@ -56,7 +56,7 @@ The latest local 12-class mudra model used 4,918 MediaPipe-detected samples and 
 
 The most visible confusion was around visually similar shapes, especially Ardhapathaka versus Mayura or Mrigasirsha.
 
-The deployment-safe image model reached 73 percent accuracy on the same 12 classes. It is less precise than the MediaPipe model but avoids MediaPipe installation constraints on Streamlit Cloud.
+The deployment-safe image model is trained on all 50 mudra folders. It is less precise than the MediaPipe model but avoids MediaPipe installation constraints on Streamlit Cloud. Low-confidence predictions are displayed as `Unknown or unsupported`.
 
 ## Limitations
 

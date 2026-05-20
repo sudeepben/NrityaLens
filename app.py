@@ -14,6 +14,7 @@ from nrityalens.analyzer import (
     image_mudra_model_available,
     model_available,
     mudra_model_available,
+    supported_mudra_labels,
 )
 from nrityalens.knowledge import find_meaning, load_meanings
 from nrityalens.storage import init_db, recent_analyses, save_analysis
@@ -90,8 +91,9 @@ def main() -> None:
             st.write("Analysis: MediaPipe landmarks plus curated baseline rules")
         st.divider()
         st.subheader("Supported Mudras")
-        supported = sorted(entry.label for entry in meanings if entry.type == "mudra")
+        supported = supported_mudra_labels() or sorted(entry.label for entry in meanings if entry.type == "mudra")
         st.write(", ".join(supported))
+        st.caption(f"{len(supported)} mudras supported by the active model.")
         st.divider()
         st.subheader("Roadmap")
         st.write("1. Collect labeled mudra images")
@@ -179,7 +181,7 @@ def main() -> None:
                 st.write(meaning.meaning)
                 st.caption("Possible symbols: " + ", ".join(meaning.keywords))
             else:
-                st.write("No curated meaning was found for this detected label yet.")
+                st.write("This mudra is recognized by the classifier, but a curated cultural explanation has not been added yet.")
 
             st.subheader("Alignment Feedback")
             for item in result.feedback:

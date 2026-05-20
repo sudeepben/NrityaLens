@@ -7,7 +7,7 @@ Live app: https://nrityalens-3dmmccjdxcgvvrwc2henez.streamlit.app/
 This MVP focuses on Bharatanatyam image analysis:
 
 - Upload a dance image
-- Detect 12 Bharatanatyam mudras in the deployed app
+- Detect mudras from the Bharatanatyam mudra dataset in the deployed app
 - Explain cultural meaning from a local knowledge base
 - Download an analysis report
 - Run optional MediaPipe landmark analysis locally
@@ -62,7 +62,7 @@ nrityalens/
 
 ## MVP Scope
 
-The deployed app supports a trained image-based classifier for 12 Bharatanatyam mudras. Local runs can also use a MediaPipe hand-landmark mudra classifier when `requirements-training.txt` is installed. Full-body pose classification is scaffolded but still needs a labeled full-body dataset.
+The deployed app supports a trained image-based classifier for all 50 mudra folders in the Bharatanatyam mudra dataset. Local runs can also use a MediaPipe hand-landmark mudra classifier when `requirements-training.txt` is installed. Full-body pose classification is scaffolded but still needs a labeled full-body dataset.
 
 ## Training Workflow
 

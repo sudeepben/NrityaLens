@@ -32,23 +32,61 @@ ROOT = Path(__file__).resolve().parents[1]
 MODEL_PATH = ROOT / "models" / "pose_classifier.joblib"
 MUDRA_MODEL_PATH = ROOT / "models" / "mudra_classifier.joblib"
 IMAGE_MUDRA_MODEL_PATH = ROOT / "models" / "mudra_image_classifier.joblib"
+LOW_CONFIDENCE_THRESHOLD = 0.45
 LABEL_DISPLAY = {
     "alapadmam": "Alapadmam",
     "anjali": "Anjali",
     "ardhapathaka": "Ardhapathaka",
+    "aralam": "Aralam",
     "araimandi": "Araimandi",
+    "berunda": "Berunda",
+    "bramaram": "Bramaram",
+    "chakra": "Chakra",
+    "chandrakala": "Chandrakala",
+    "chaturam": "Chaturam",
+    "garuda": "Garuda",
+    "hamsapaksha": "Hamsapaksha",
+    "hamsasyam": "Hamsasyam",
+    "kangulam": "Kangulam",
+    "kapith": "Kapith",
+    "kapotham": "Kapotham",
+    "karkatta": "Karkatta",
+    "kartariswastika": "Kartariswastika",
+    "katakamukha_1": "Katakamukha 1",
+    "katakamukha_2": "Katakamukha 2",
+    "katakamukha_3": "Katakamukha 3",
+    "katakavardhana": "Katakavardhana",
+    "katrimukha": "Katrimukha",
+    "khatva": "Khatva",
+    "kilaka": "Kilaka",
+    "kurma": "Kurma",
+    "matsya": "Matsya",
     "mayura": "Mayura",
     "mrigasirsha": "Mrigasirsha",
+    "mukulam": "Mukulam",
     "mushti": "Mushti",
+    "nagabandha": "Nagabandha",
     "nataraja_pose": "Nataraja Pose",
     "padmakosha": "Padmakosha",
+    "pasha": "Pasha",
     "pathaka": "Pataka",
     "pataka": "Pataka",
+    "pushpaputa": "Pushpaputa",
+    "sakata": "Sakata",
+    "samputa": "Samputa",
+    "sarpasirsha": "Sarpasirsha",
+    "shanka": "Shanka",
+    "shivalinga": "Shivalinga",
     "shukatundam": "Shukatundam",
     "sikharam": "Sikharam",
+    "simhamukham": "Simhamukham",
     "suchi": "Suchi",
+    "swastikam": "Swastikam",
+    "tamarachudam": "Tamarachudam",
     "tripathaka": "Tripataka",
     "tripataka": "Tripataka",
+    "trishulam": "Trishulam",
+    "varaha": "Varaha",
 }
 FEATURE_COLUMNS = [
     "left_knee_angle",
@@ -126,6 +164,13 @@ def mudra_model_available() -> bool:
 
 def image_mudra_model_available() -> bool:
     return joblib is not None and IMAGE_MUDRA_MODEL_PATH.exists()
+
+
+def supported_mudra_labels() -> list[str]:
+    model_bundle = _load_image_mudra_model() or _load_mudra_model()
+    if model_bundle and model_bundle.get("labels"):
+        return [LABEL_DISPLAY.get(str(label), _display_label(str(label))) for label in model_bundle["labels"]]
+    return sorted(label for label in LABEL_DISPLAY.values() if label not in {"Araimandi", "Nataraja Pose"})
 
 
 def analyze_image(image_rgb: np.ndarray) -> AnalysisResult:
@@ -327,11 +372,13 @@ def _classify_mudra_from_image(image_rgb: np.ndarray) -> tuple[str, float] | Non
     row = features.reshape(1, -1)
     pipeline = model_bundle["pipeline"]
     raw_label = pipeline.predict(row)[0]
-    label = LABEL_DISPLAY.get(str(raw_label), str(raw_label).replace("_", " ").title())
+    label = LABEL_DISPLAY.get(str(raw_label), _display_label(str(raw_label)))
 
     confidence = 0.0
     if hasattr(pipeline, "predict_proba"):
         confidence = float(np.max(pipeline.predict_proba(row)[0]))
+    if confidence and confidence < LOW_CONFIDENCE_THRESHOLD:
+        return "Unknown or unsupported", confidence
     return label, confidence
 
 
@@ -342,7 +389,15 @@ def image_feature_vector(image_rgb: np.ndarray, image_size: int = 64) -> np.ndar
     resized = cv2.resize(image_rgb, (image_size, image_size), interpolation=cv2.INTER_AREA)
     gray = cv2.cvtColor(resized, cv2.COLOR_RGB2GRAY)
     equalized = cv2.equalizeHist(gray)
-    return (equalized.astype(np.float32) / 255.0).reshape(-1)
+    hog = cv2.HOGDescriptor(
+        (image_size, image_size),
+        (16, 16),
+        (8, 8),
+        (8, 8),
+        9,
+    )
+    hog_features = hog.compute(equalized).reshape(-1).astype(np.float32)
+    return hog_features
 
 
 def _classify_mudra_from_hands(hands_result: Any) -> tuple[str, float] | None:
@@ -355,11 +410,13 @@ def _classify_mudra_from_hands(hands_result: Any) -> tuple[str, float] | None:
     feature_columns = model_bundle["feature_columns"]
     row = pd.DataFrame([{column: features[column] for column in feature_columns}])
     raw_label = pipeline.predict(row)[0]
-    label = LABEL_DISPLAY.get(str(raw_label), str(raw_label).replace("_", " ").title())
+    label = LABEL_DISPLAY.get(str(raw_label), _display_label(str(raw_label)))
 
     confidence = 0.0
     if hasattr(pipeline, "predict_proba"):
         confidence = float(np.max(pipeline.predict_proba(row)[0]))
+    if confidence and confidence < LOW_CONFIDENCE_THRESHOLD:
+        return "Unknown or unsupported", confidence
     return label, confidence
 
 
@@ -435,13 +492,19 @@ def _classify_with_model(metrics: dict[str, float]) -> tuple[str, float] | None:
     feature_columns = model_bundle["feature_columns"]
     row = pd.DataFrame([{column: metrics[column] for column in feature_columns}])
     raw_label = pipeline.predict(row)[0]
-    label = LABEL_DISPLAY.get(str(raw_label), str(raw_label))
+    label = LABEL_DISPLAY.get(str(raw_label), _display_label(str(raw_label)))
 
     confidence = 0.0
     if hasattr(pipeline, "predict_proba"):
         probabilities = pipeline.predict_proba(row)[0]
         confidence = float(np.max(probabilities))
+    if confidence and confidence < LOW_CONFIDENCE_THRESHOLD:
+        return "Unknown or unsupported", confidence
     return label, confidence
+
+
+def _display_label(raw_label: str) -> str:
+    return raw_label.replace("_", " ").title()
 
 
 @lru_cache(maxsize=1)
